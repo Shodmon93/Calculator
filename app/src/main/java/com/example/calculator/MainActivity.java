@@ -7,6 +7,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
+
 public class MainActivity extends AppCompatActivity {
     TextView txtScreen;
     int[] operationButton = {
@@ -26,12 +29,14 @@ public class MainActivity extends AppCompatActivity {
             R.id.numEight,
             R.id.numNine
     };
-    //    Button dotButton,
-//            equalButton,
-//            clearButton;
+    Button dotButton,
+            equalButton,
+            clearButton,
+            delButton;
     boolean decimalPoint;
     boolean lastNumericInput;
     boolean result;
+    int [] opButton = {R.id.decimalPoint,R.id.equalButton,R.id.clearButton, R.id.delButton};
 
 
     @Override
@@ -88,91 +93,76 @@ public class MainActivity extends AppCompatActivity {
         for (int expressionId : operationButton) {
             findViewById(expressionId).setOnClickListener(onExpressionClick);
         }
+
+        findViewById(R.id.equalButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setEqual();
+            }
+        });
+        findViewById(R.id.decimalPoint).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDecimalPoint();
+            }
+        });
+        findViewById(R.id.delButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDelButton();
+            }
+        });
+        findViewById(R.id.clearButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setClearButton();
+            }
+        });
     }
 
+    public void setEqual() {
+        String getExpression = txtScreen.getText().toString();
+        try {
+
+            Expression expression = new ExpressionBuilder(getExpression).build();
+            double lResult = expression.evaluate();
+            String finalResult = String.valueOf(lResult);
+            txtScreen.setText(finalResult);
+            result = true;
 
 
+        } catch (IllegalArgumentException ex) {
+            txtScreen.setText("");
+        }
 
+    }
 
+    public void setDecimalPoint() {
+        dotButton = findViewById(R.id.decimalPoint);
 
+        if (lastNumericInput && !result) {
+            txtScreen.append(dotButton.getText().toString());
+            lastNumericInput = false;
+        }
+    }
 
+    public void setDelButton() {
+        if (!result) {
+            try {
+                String getText = txtScreen.getText().toString();
+                StringBuffer newText = new StringBuffer(getText);
+                newText.deleteCharAt(newText.length() - 1);
+                txtScreen.setText(newText);
+            } catch (StringIndexOutOfBoundsException ex) {
+                txtScreen.setText("");
+            }
+        } else {
+            txtScreen.setText("");
+        }
+        lastNumericInput = true;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    public void getNumber() {
-//        View.OnClickListener digitListener = v -> {
-//            Button button = (Button) v;
-//            txtScreen.append(button.getText().toString());
-//            lastNumericInput = true;
-//        };
-//        for (int id : numberButton) {
-//            findViewById(id).setOnClickListener(digitListener);
-//        }
-//    }
-//
-//    public void setLastDot() {
-//        dotButton = findViewById(R.id.dote);
-//        View.OnClickListener dotClickListener = new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (lastNumericInput && !dot) {
-//                    txtScreen.append(".");
-//                    lastNumericInput = false;
-//                    dot = true;
-//                }
-//            }
-//        };
-//        dotButton.setOnClickListener(dotClickListener);
-//
-//    }
-//
-//    public void getOperator() {
-//        View.OnClickListener listener = v -> {
-//            Button button = (Button) v;
-//            if (lastNumericInput) {
-//                txtScreen.append(button.getText().toString());
-//                lastNumericInput = false;
-//                dot = false;
-//            }
-//
-//        };
-//        for (int b : operationButton) {
-//            findViewById(b).setOnClickListener(listener);
-//        }
-//    }
-//
-//    public void equal() {
-//        View.OnClickListener listener = v -> {
-//            String input = txtScreen.getText().toString();
-//            try {
-//                Expression expression = new ExpressionBuilder(input).build();
-//                Double result = expression.evaluate();
-//                String finalResult = String.valueOf(result);
-//                txtScreen.setText(finalResult);
-//            } catch (IllegalArgumentException ex) {
-//                txtScreen.setText("");
-//            }
-//
-//        };
-//        equalButton.setOnClickListener(listener);
-//    }
-//
-//    public void clear() {
-//        clearButton = findViewById(R.id.clearButton);
-//        View.OnClickListener clearListener = v -> txtScreen.setText("");
-//        clearButton.setOnClickListener(clearListener);
-//    }
+    public void setClearButton() {
+        txtScreen.setText("");
+    }
 }
